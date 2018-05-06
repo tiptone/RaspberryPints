@@ -3,15 +3,23 @@ require_once __DIR__.'/../../../includes/config_names.php';
 require_once __DIR__.'/../models/tap.php';
 
 class TapManager{
+    
+    var $db;
+    
+    function __construct() {
+        global $rplink;
+        
+        $this->db = $rplink;
+    }
 	
 	function Save($tap){
 		$sql = "";
 		
 		$sql="UPDATE kegs k SET k.kegStatusCode = 'SERVING' WHERE id = " . $tap->get_kegId();
-		mysql_query($sql);
+		mysqli_query($this->db, $sql);
 	
 		$sql="UPDATE taps SET active = 0, modifiedDate = NOW() WHERE active = 1 AND tapNumber = " . $tap->get_tapNumber();
-		mysql_query($sql);		
+		mysqli_query($this->db, $sql);		
 		
 		if($tap->get_id()){
 			$sql = 	"UPDATE taps " .
@@ -35,16 +43,17 @@ class TapManager{
 		
 		//echo $sql; exit();
 		
-		mysql_query($sql);
+		mysqli_query($this->db, $sql);
 	}
 	
 	function GetById($id){
 		$id = (int) preg_replace('/\D/', '', $id);
 	
 		$sql="SELECT * FROM taps WHERE id = $id";
-		$qry = mysql_query($sql);
+		$result = mysqli_query($this->db, $sql);
 		
-		if( $i = mysql_fetch_array($qry) ){
+		//if( $i = mysql_fetch_array($qry) ){
+		if ($i = $result->fetch_array(MYSQLI_ASSOC)) {
 			$tap = new Tap();
 			$tap->setFromArray($i);
 			return $tap;
@@ -55,17 +64,18 @@ class TapManager{
 
 	function updateTapNumber($newTapNumber){
 		$sql="UPDATE config SET configValue = $newTapNumber WHERE configName = '".ConfigNames::NumberOfTaps."'";
-		mysql_query($sql);
+		mysqli_query($this->db, $sql);
 		
 		$sql="UPDATE taps SET active = 0, modifiedDate = NOW() WHERE active = 1 AND tapNumber > $newTapNumber";
-		mysql_query($sql);
+		mysqli_query($this->db, $sql);
 	}
 
 	function getTapNumber(){
 		$sql="SELECT configValue FROM config WHERE configName = '".ConfigNames::NumberOfTaps."'";
 
-		$qry = mysql_query($sql);
-		$config = mysql_fetch_array($qry);
+		$result = mysqli_query($this->db, $sql);
+		//$config = mysql_fetch_array($qry);
+		$config = $result->fetch_array(MYSQLI_ASSOC);
 		
 		if( $config != false ){
 			return $config['configValue'];

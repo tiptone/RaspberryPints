@@ -76,7 +76,7 @@ you are certain you need to change it.
 					<label for="textfield"><strong>Database Server: (required)</strong></label> 
 				</td>
 				<td>
-					<input minlength="2" required class="inputbox" value="localhost" type="text" name="servername" required>				
+					<input minlength="2" required class="inputbox" value="127.0.0.1" type="text" name="servername" required>				
 				</td>
 			</tr>
 			<tr>
